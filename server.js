@@ -88,7 +88,7 @@ function datetime(string){
 
  function insert_data(data){
 
-  var data = string;
+  var string = data;
   var header = string.slice(0, 2);
   var length = string.slice(2, 6);
   var datatype = string.slice(6, 8);
