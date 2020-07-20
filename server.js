@@ -8,9 +8,9 @@ var server = net.createServer();
 
 var con = mysql.createConnection({
   host: "localhost",
-  user: "root",
+  user: "forge",
   password: "",
-  database: "gpsdata"
+  database: "forge"
 });
 
 
@@ -26,6 +26,7 @@ con.connect(function(err) {
   if (err) throw err;
   console.log("DB is Connected!");
 });
+
 
 
 function Checksum(s) {
@@ -48,7 +49,6 @@ function Checksum(s) {
     var hexString = result.toString(16);
     var id = "0"+hexString;
     var response = id.substr(id.length - 2);
-    
 return response;
 
   
@@ -67,13 +67,58 @@ function returndata(string){
   var serialnumber = string.slice(110, 114);
   var checksum_string = string.substring(0, string.length - 2);
 
-  var checksum = Checksum(checksum_string);
+  var checksum = Checksum(header + "0014"+ "AA" + serialnumber);
 
 
-  return header + length + datatype + serialnumber + checksum;
+  return header + "0014"+ "AA" + serialnumber + checksum;
+
 
 
 }
+
+function datetime(string){
+  var year = string.slice(0, 2);
+  var month = string.slice(2, 4);
+  var day = string.slice(4, 6);
+  var hour = string.slice(6, 8);
+  var min = string.slice(8, 10);
+  var second = string.slice(10, 12);
+  return "20"+year+"-"+month+"-"+day+" "+hour+":"+min+":"+second;
+}
+
+ function insert_data(data){
+
+  var data = string;
+  var header = string.slice(0, 2);
+  var length = string.slice(2, 6);
+  var datatype = string.slice(6, 8);
+  var imei = string.slice(8, 23);
+  var vehiclestatus = string.slice(24, 32);
+  var datetime = datetime(string.slice(32, 44));
+  var batvoltage = string.slice(44, 46);
+  var supvoltage = string.slice(46, 48);
+  var adc = string.slice(48, 52);
+  var tempa = string.slice(52, 56);
+  var tempb = string.slice(56, 60);
+  var lacci = string.slice(60, 64);
+  var cellid = string.slice(64, 68);
+  var gpssatellites = string.slice(68, 70);
+  var gsmsignal = string.slice(70, 72);
+  var angle = string.slice(72, 75);
+  var speed = string.slice(75, 78);
+  var hdop = string.slice(78, 82);
+  var mileage = string.slice(82, 89);
+  var lat = string.slice(89, 98);
+  var ns = string.slice(98, 99);
+  var long = string.slice(99, 109);
+  var ew = string.slice(109, 110);
+  var serialnumber = string.slice(110, 114);
+
+  var server_date = new Date().toJSON().slice(0, 19).replace('T', ' ');
+  var sql = "INSERT INTO data (data, imei, vehiclestatus, datetime, batvoltage, supvoltage, tempa, tempb, gpsatellites, gsmsignal, angle, speed, hdop, mileage, lat, ns, long, ew, serialnumber,created_at) VALUES ('"+ data +"','"+ imei +"','"+ datetime +"','"+ batvoltage +"','"+ supvoltage +"','"+ tempa +"','"+ tempb +"','"+ gpssatellites +"','"+ gsmsignal +"','"+ angle +"','"+ speed +"','"+ hdop +"','"+ mileage +"','"+ lat +"','"+ ns +"','"+ long +"','"+ ew +"','"+ serialnumber +"','"+server_date+'")'";
+
+}
+
 
 
 function handleConnection(conn) {    
@@ -87,9 +132,14 @@ function handleConnection(conn) {
     console.log('connection data from %s: %j', remoteAddress, d);  
 
     conn.write(returndata(d));  
+    console.log('Gps send data :' + returndata(d) );
 
-    var sql = "INSERT INTO data (data, ip) VALUES ('"+ d +"','"+ remoteAddress +"')";
+    insert_data(d,remoteAddress);
+
+    var sql = insert_data(d,remoteAddress);
+
     con.query(sql, function (err, result) {
+
       if (err) throw err;
       console.log("1 record inserted");
     });
