@@ -115,7 +115,7 @@ function calculatedate(string){
   var serialnumber = string.slice(110, 114);
 
   var server_date = new Date().toJSON().slice(0, 19).replace('T', ' ');
-  return "INSERT INTO data (data, imei, vehiclestatus, datetime, batvoltage, supvoltage, tempa, tempb, gpsatellites, gsmsignal, angle, speed, hdop, mileage, lat, ns, long, ew, serialnumber,created_at) VALUES ('"+ data +"','"+ imei +"','"+ datetime +"','"+ batvoltage +"','"+ supvoltage +"','"+ tempa +"','"+ tempb +"','"+ gpssatellites +"','"+ gsmsignal +"','"+ angle +"','"+ speed +"','"+ hdop +"','"+ mileage +"','"+ lat +"','"+ ns +"','"+ long +"','"+ ew +"','"+ serialnumber +"','"+server_date+'")';
+  return "INSERT INTO data (data, imei, vehiclestatus, datetime, batvoltage, supvoltage, tempa, tempb, gpsatellites, gsmsignal, angle, speed, hdop, mileage, lat, ns, long, ew, serialnumber,created_at) VALUES ('"+ data +"','"+ imei +"','"+ datetime +"','"+ batvoltage +"','"+ supvoltage +"','"+ tempa +"','"+ tempb +"','"+ gpssatellites +"','"+ gsmsignal +"','"+ angle +"','"+ speed +"','"+ hdop +"','"+ mileage +"','"+ lat +"','"+ ns +"','"+ long +"','"+ ew +"','"+ serialnumber +"','"+server_date+"')";
 
 }
 
