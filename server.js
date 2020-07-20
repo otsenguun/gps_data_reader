@@ -76,7 +76,7 @@ function returndata(string){
 
 }
 
-function datetime(string){
+function calculatedate(string){
   var year = string.slice(0, 2);
   var month = string.slice(2, 4);
   var day = string.slice(4, 6);
@@ -94,7 +94,7 @@ function datetime(string){
   var datatype = string.slice(6, 8);
   var imei = string.slice(8, 23);
   var vehiclestatus = string.slice(24, 32);
-  var datetime = datetime(string.slice(32, 44));
+  var datetime = calculatedate(string.slice(32, 44));
   var batvoltage = string.slice(44, 46);
   var supvoltage = string.slice(46, 48);
   var adc = string.slice(48, 52);
