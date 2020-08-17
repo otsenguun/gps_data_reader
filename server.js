@@ -18,7 +18,7 @@ server.on('connection', handleConnection);
 
 
 
-server.listen(9000, function() {    
+server.listen(8080, function() {    
   console.log('server listening to %j', server.address());  
 });
 
@@ -114,7 +114,30 @@ function calculatedate(string){
   var ew = string.slice(109, 110);
   var serialnumber = string.slice(110, 114);
 
-  var server_date = new Date().toJSON().slice(0, 19).replace('T', ' ');
+  let date_ob = new Date();
+
+// current date
+// adjust 0 before single digit date
+let date = ("0" + date_ob.getDate()).slice(-2);
+
+// current month
+let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+
+// current year
+let year = date_ob.getFullYear();
+
+// current hours
+let hours = date_ob.getHours();
+
+// current minutes
+let minutes = date_ob.getMinutes();
+
+// current seconds
+let seconds = date_ob.getSeconds();
+
+var server_date = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
+// prints date & time in YYYY-MM-DD HH:MM:SS format
+
   return "INSERT INTO data (data, imei, vehiclestatus, datetime, batvoltage, supvoltage, tempa, tempb, gpssatellites, gsmsignal, angle, speed, hdop, mileage, lat, ns, lng, ew, serialnumber,created_at) VALUES ('"+ data +"','"+ imei +"','"+ vehiclestatus+"','"+ datetime +"','"+ batvoltage +"','"+ supvoltage +"','"+ tempa +"','"+ tempb +"','"+ gpssatellites +"','"+ gsmsignal +"','"+ angle +"','"+ speed +"','"+ hdop +"','"+ mileage +"','"+ lat +"','"+ ns +"','"+ long +"','"+ ew +"','"+ serialnumber +"','"+server_date+"')";
 
 }
