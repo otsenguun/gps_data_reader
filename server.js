@@ -8,9 +8,9 @@ var server = net.createServer();
 
 var con = mysql.createConnection({
   host: "localhost",
-  user: "forge",
-  password: "",
-  database: "forge"
+  user: "gps",
+  password: "12345678",
+  database: "gps"
 });
 
 
@@ -28,6 +28,54 @@ con.connect(function(err) {
 });
 
 
+const https = require('https')
+
+
+function sendTT(gps_date,lat,lon,number){
+
+  const data = JSON.stringify({
+   "traffic": [
+      {
+        "date": gps_date,
+        "location": lat+","+lon,
+        "number": number
+      }
+    ]
+  })
+
+  const options = {
+    hostname: 'http://admin.ett.mn/api/other/traffics/',
+    port: 80,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': data.length,
+      'Authorization' : "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRzZW5ndXVua29rbyIsIm9yaWdfaWF0IjoxNjE4Mzc0MjMxLCJ1c2VyX2lkIjoxNzYsImVtYWlsIjoidHNlbmd1dW5rb2tvQGdtYWlsLmNvbSIsImV4cCI6MTYyMDk2NjIzMX0._s0lpXaYdDfbbv7IkYNrC6zxGrdUQmcW8gthpxzYBHo"
+    }
+  }
+
+  const req = https.request(options, res => {
+
+    console.log(`statusCode: ${res.statusCode}`)
+
+    res.on('data', d => {
+      process.stdout.write(d)
+    })
+  })
+
+  req.on('error', error => {
+    console.error(error)
+  })
+
+  req.write(data)
+  req.end()
+
+  console.log('sendTT response : ');
+
+  // console.log();
+
+
+}
 
 function Checksum(s) {
 
@@ -137,6 +185,8 @@ let seconds = date_ob.getSeconds();
 
 var server_date = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
 // prints date & time in YYYY-MM-DD HH:MM:SS format
+  
+ // sendTT(datetime,lat,long,'УУУ0213');
 
   return "INSERT INTO data (data, imei, vehiclestatus, datetime, batvoltage, supvoltage, tempa, tempb, gpssatellites, gsmsignal, angle, speed, hdop, mileage, lat, ns, lng, ew, serialnumber,created_at) VALUES ('"+ data +"','"+ imei +"','"+ vehiclestatus+"','"+ datetime +"','"+ batvoltage +"','"+ supvoltage +"','"+ tempa +"','"+ tempb +"','"+ gpssatellites +"','"+ gsmsignal +"','"+ angle +"','"+ speed +"','"+ hdop +"','"+ mileage +"','"+ lat +"','"+ ns +"','"+ long +"','"+ ew +"','"+ serialnumber +"','"+server_date+"')";
 
