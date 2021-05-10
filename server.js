@@ -8,8 +8,8 @@ var server = net.createServer();
 
 var con = mysql.createConnection({
   host: "localhost",
-  user: "gps",
-  password: "12345678",
+  user: "root",
+  password: "",
   database: "gps"
 });
 
@@ -134,6 +134,41 @@ function calculatedate(string){
   return "20"+year+"-"+month+"-"+day+" "+hour+":"+min+":"+second;
 }
 
+ function insert_last_data(data,imei,datetime,angle,speed,lat,long,server_date){
+
+      var check_last_distance_sql = ("SELECT id FROM last_distances WHERE imei = "+imei+" LIMIT 1;");
+     
+      con.query(check_last_distance_sql, function(error, results, fields) {
+          if(error) {
+              console.log(error);
+              return;
+          }
+
+          if(results != ""){
+
+            var rows = JSON.parse(JSON.stringify(results[0]));
+        
+              if(rows && rows.id != ""){
+                    var sql =  ("UPDATE last_distances SET data = "+"'"+ data+"'" +",imei ="+"'"+ imei +"'"+", datetime="+"'"+ datetime +"'"+", angle="+"'"+ angle+"'" +", speed="+"'"+ speed+"'" +", lat="+"'"+ lat+"'" +", lng="+"'"+ long+"'" +",updated_at="+"'"+ server_date +"'"+" WHERE imei='"+imei+"'");
+                    queryExecute(sql);
+              }else{
+                    var sql =  ("INSERT INTO last_distances (data,imei, datetime, angle, speed, lat, lng,created_at) VALUES('"+ data +"','"+ imei +"','"+ datetime +"','"+ angle +"','"+ speed+"','"+ lat +"','"+ long +"','" + server_date+"')");
+                    queryExecute(sql);
+
+              }
+          }else{
+                var sql =  ("INSERT INTO last_distances (data,imei, datetime, angle, speed, lat, lng,created_at) VALUES('"+ data +"','"+ imei +"','"+ datetime +"','"+ angle +"','"+ speed+"','"+ lat +"','"+ long +"','" + server_date+"')");
+                queryExecute(sql);
+          }
+          
+          
+      });
+      
+
+     
+
+ }
+
  function insert_data(data){
 
   var string = data;
@@ -185,14 +220,43 @@ let seconds = date_ob.getSeconds();
 
 var server_date = year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
 // prints date & time in YYYY-MM-DD HH:MM:SS format
-  
- // sendTT(datetime,lat,long,'УУУ0213');
+
+  insert_last_data(data,imei,datetime,angle,speed,lat,long,server_date);
 
   return "INSERT INTO data (data, imei, vehiclestatus, datetime, batvoltage, supvoltage, tempa, tempb, gpssatellites, gsmsignal, angle, speed, hdop, mileage, lat, ns, lng, ew, serialnumber,created_at) VALUES ('"+ data +"','"+ imei +"','"+ vehiclestatus+"','"+ datetime +"','"+ batvoltage +"','"+ supvoltage +"','"+ tempa +"','"+ tempb +"','"+ gpssatellites +"','"+ gsmsignal +"','"+ angle +"','"+ speed +"','"+ hdop +"','"+ mileage +"','"+ lat +"','"+ ns +"','"+ long +"','"+ ew +"','"+ serialnumber +"','"+server_date+"')";
 
 }
 
+function validate(data){
+  // return data.length;
+  if(data.length == 116){
+    return true;
+  }else{
+    return false;
+  }
 
+}
+
+
+function GetqueryResult(result){
+  return result;
+}
+
+function queryExecute(sql){
+  console.log('try sql');
+  var return_res;
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    
+    var return_sql = Object.values(JSON.parse(JSON.stringify(result)));
+    // GetqueryResult(return_sql);
+    // console.log(return_sql);
+
+    // return return_sql;
+
+  });
+
+}
 
 function handleConnection(conn) {    
   var remoteAddress = conn.remoteAddress + ':' + conn.remotePort;  
@@ -207,15 +271,16 @@ function handleConnection(conn) {
     conn.write(returndata(d));  
     console.log('Gps send data :' + returndata(d) );
 
-    insert_data(d,remoteAddress);
+    // insert_data(d,remoteAddress);
 
     var sql = insert_data(d,remoteAddress);
+    
+    // console.log(validate(d));
 
-    con.query(sql, function (err, result) {
+    if(validate(d) == true){
+      // queryExecute(sql);
+    }
 
-      if (err) throw err;
-      console.log("1 record inserted");
-    });
   }
   function onConnClose() {  
     console.log('connection from %s closed', remoteAddress);  
