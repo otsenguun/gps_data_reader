@@ -8,8 +8,8 @@ var server = net.createServer();
 
 var con = mysql.createConnection({
   host: "localhost",
-  user: "root",
-  password: "",
+  user: "gps",
+  password: "12345678",
   database: "gps"
 });
 
